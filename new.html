@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Doccy | Save 60+ minutes per day with AI medical reports</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+    <script>
+        (function () {
+            emailjs.init("UwLbMCXnZUr7yssSt");
+        })();
+    </script>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            /* Prevent scrolling on the body */
+            background-color: #1e3a8a;
+            height: 100%;
+        }
+
+        #root {
+            height: 100vh;
+            overflow-y: auto;
+            /* Allow scrolling only within root */
+            overflow-x: hidden;
+        }
+    </style>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #root {
+            min-height: 100vh;
+        }
+
+        .modal-overlay {
+            display: none;
+        }
+
+        .modal-overlay.visible {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+
+
+        // Add this right before the App component
+        const ContactModal = ({ isOpen, onClose }) => {
+            if (!isOpen) return null;
+
+            // Handle clicking outside the modal
+            const handleOutsideClick = (e) => {
+                if (e.target === e.currentTarget) {
+                    onClose();
+                }
+            };
+
+            // Add ESC key handler when the component mounts
+            React.useEffect(() => {
+                const handleEscKey = (e) => {
+                    if (e.key === 'Escape') {
+                        onClose();
+                    }
+                };
+
+                // Add event listener
+                document.addEventListener('keydown', handleEscKey);
+
+                // Cleanup event listener when component unmounts
+                return () => {
+                    document.removeEventListener('keydown', handleEscKey);
+                };
+            }, [onClose]);
+
+
+            const handleContactSubmit = async (e) => {
+                e.preventDefault();
+
+                // Get form data
+                const formData = {
+                    subject: e.target.subject.value,
+                    email: e.target.email.value,
+                    firstName: e.target.firstName.value,
+                    lastName: e.target.lastName.value,
+                    message: e.target.message.value
+                };
+
+                try {
+                    const templateParams = {
+                        subject: formData.subject,
+                        from_name: `${formData.firstName} ${formData.lastName}`,
+                        from_email: formData.email,
+                        message: formData.message,
+                        to_email: 'doccy.startup@gmail.com'
+                    };
+
+                    const response = await emailjs.send(
+                        'service_3uve3ch',  // Your EmailJS service ID
+                        'template_uo0xvkp',  // Create a new template for contact form
+                        templateParams
+                    );
+
+                    if (response.status === 200) {
+                        alert('Message sent successfully!');
+                        e.target.reset();
+                        onClose();
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Sorry, there was an error sending your message. Please try again.');
+                }
+            };
+
+            return (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={handleOutsideClick}>
+                    <div className="bg-white text-gray-900 rounded-xl max-w-2xl w-full p-8 relative">
+                        {/* Close button */}
+                        <button
+                            onClick={onClose}
+                            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold"
+                            aria-label="Close"
+                        >
+                            ×
+                        </button>
+
+                        <div className="mb-6">
+                            <h2 className="text-3xl font-bold">Contact Support</h2>
+                        </div>
+                        <form onSubmit={handleContactSubmit} className="space-y-6">
+                            {/* Add name attributes to all form inputs */}
+                            <div>
+                                <label className="block text-sm font-medium mb-2">SUBJECT *</label>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    <label className="flex items-center space-x-2">
+                                        <input type="radio" name="subject" value="General inquiry" className="h-4 w-4" required />
+                                        <span>General inquiry</span>
+                                    </label>
+                                    {/* ... other radio buttons with values ... */}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-2">EMAIL *</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    required
+                                    placeholder="Enter email address"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-2">FIRST NAME</label>
+                                <input
+                                    type="text"
+                                    name="firstName"
+                                    placeholder="First name"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-2">LAST NAME</label>
+                                <input
+                                    type="text"
+                                    name="lastName"
+                                    placeholder="Enter last name"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-2">MESSAGE *</label>
+                                <textarea
+                                    name="message"
+                                    required
+                                    placeholder="Enter message"
+                                    rows="4"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors"
+                            >
+                                Submit
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+
+        const App = () => {
+            const [isModalOpen, setIsModalOpen] = React.useState(false);
+            const [isContactModalOpen, setIsContactModalOpen] = React.useState(false);
+
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+
+                const formData = {
+                    firstName: e.target.firstName.value.trim(),
+                    lastName: e.target.lastName.value.trim(),
+                    companyName: e.target.companyName.value.trim(),
+                    email: e.target.email.value.trim(),
+                    meetingDateTime: e.target.meetingDateTime.value
+                };
+
+                let isValid = true;
+                // Validate form fields
+                if (!formData.firstName || !formData.lastName || !formData.companyName) {
+                    isValid = false;
+                }
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(formData.email)) {
+                    isValid = false;
+                }
+
+                const selectedDate = new Date(formData.meetingDateTime);
+                if (!formData.meetingDateTime || selectedDate <= new Date()) {
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    try {
+                        const submitButton = e.target.querySelector('button[type="submit"]');
+                        submitButton.disabled = true;
+                        submitButton.textContent = 'Sending...';
+
+                        const templateParams = {
+                            first_name: formData.firstName,
+                            last_name: formData.lastName,
+                            company_name: formData.companyName,
+                            to_email: 'doccy.startup@gmail.com',
+                            from_email: formData.email,
+                            meeting_date: new Date(formData.meetingDateTime).toLocaleDateString(),
+                            meeting_time: new Date(formData.meetingDateTime).toLocaleTimeString(),
+                            requester_email: formData.email
+                        };
+
+                        const response = await emailjs.send(
+                            'service_3uve3ch',
+                            'template_g8gsdy8',
+                            templateParams
+                        );
+
+                        if (response.status === 200) {
+                            alert('Meeting request sent! We\'ll contact you soon to confirm.');
+                            e.target.reset();
+                            setIsModalOpen(false);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Sorry, there was an error sending your meeting request. Please try again.');
+                    } finally {
+                        const submitButton = e.target.querySelector('button[type="submit"]');
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Schedule Meeting';
+                    }
+                }
+
+
+            };
+
+
+            return (
+                <div className="h-screen overflow-y-auto bg-blue-950 text-white">
+                    <header className="fixed top-0 w-full bg-indigo-900/1 backdrop-blur-sm z-50 px-6 py-4 flex justify-between items-center">
+                        <img src="images/logo.svg" alt="Doccy" className="h-8" />
+                        <nav className="flex items-center gap-8">
+                            <a href="#products" className="hover:text-blue-200 transition-colors">Products</a>
+                            <a href="#about-us" className="hover:text-blue-200 transition-colors">About Us</a>
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="bg-violet-500 hover:bg-violet-600 px-6 py-2 rounded-lg transition-colors">
+                                Book a meeting
+                            </button>
+                        </nav>
+                    </header>
+
+                    <main className="pt-10">
+                        <div className="h-screen container mx-auto px-6 flex items-center relative">
+                            <div className="max-w-3xl z-10">
+                                <h1 className="text-6xl font-bold mb-6">Save 60+ minutes per day</h1>
+                                <h2 className="text-2xl text-blue-200 mb-8">
+                                    Doccy automatically generates all the report from dictated speech.
+                                </h2>
+                                <button onClick={() => setIsModalOpen(true)} className="bg-orange-400 hover:bg-orange-500 text-white px-8 py-3 rounded-lg text-lg transition-colors">
+                                    Book a meeting
+                                </button>
+                            </div>
+                            {/* Hero background circle */}
+                            <div className="absolute inset-0 flex justify-end items-center pointer-events-none">
+                                <img src="images/circle2.svg" alt="" className="w-4/5 opacity-10 transform translate-x-1/4" />
+                            </div>
+                        </div>
+
+                        {/* Partners Section */}
+                        <div className="h-screen bg-blue-800/50 relative flex flex-col justify-center">
+                            <div className="container mx-auto px-6 relative z-10 text-center">
+                                <h2 className="text-4xl font-bold text-center mb-48">Trusted by Industry Leaders</h2>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-12 items-center justify-items-center">
+                                    {/* Your partner logos */}
+                                    <img src="images/tumo.png" alt="TUMO" className="w-40 h-20 object-contain filter brightness-0 invert" />
+                                    <img src="images/erebuni.png" alt="Erebouni" className="w-40 h-20 object-contain filter brightness-0 invert" />
+                                    <img src="images/uak.png" alt="NCO" className="w-40 h-20 object-contain" />
+                                    <img src="images/vardananc.svg" alt="Vardanants" className="w-40 h-20 object-contain filter brightness-0 invert" />
+                                </div>
+                            </div>
+                            {/* Partners background circle */}
+                            <div className="absolute inset-0 flex justify-start items-center pointer-events-none">
+                                <img src="images/circle2.svg" alt="" className="w-4/5 opacity-10 transform -translate-x-1/4" />
+                            </div>
+                        </div>
+
+
+
+
+
+                        {/* About Us Section */}
+                        <div id="about-us" className="min-h-screen bg-blue-950 relative scroll-mt-24">
+                            {/* Background Circle - Right Side */}
+                            <div className="absolute inset-0 flex justify-end items-center pointer-events-none">
+                                <img
+                                    src="images/circle2.svg"
+                                    alt=""
+                                    className="w-4/5 opacity-10 transform translate-x-1/4"
+                                />
+                            </div>
+
+                            <div className="container mx-auto px-6 py-20 relative z-10">
+                                <h2 className="text-4xl font-bold text-center mb-16">About Us</h2>
+
+                                {/* Mission Statement */}
+                                <div className="max-w-4xl mx-auto text-center mb-20">
+                                    <p className="text-xl text-blue-200 leading-relaxed">
+                                        At Doccy, we're revolutionizing medical documentation through AI-powered speech recognition,
+                                        making heal thcare professionals' lives easier and more efficient.
+                                    </p>
+                                </div>
+
+                                {/* Key Features Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+                                    {/* Feature 1 */}
+                                    <div className="bg-blue-900/50 p-8 rounded-xl">
+                                        <h3 className="text-xl font-bold mb-4">Our Mission</h3>
+                                        <p className="text-blue-200">
+                                            To transform medical documentation by providing healthcare professionals with
+                                            cutting-edge AI tools that save time and improve accuracy.
+                                        </p>
+                                    </div>
+
+                                    {/* Feature 2 */}
+                                    <div className="bg-blue-900/50 p-8 rounded-xl">
+                                        <h3 className="text-xl font-bold mb-4">Our Technology</h3>
+                                        <p className="text-blue-200">
+                                            Advanced AI speech recognition specifically trained on medical terminology,
+                                            ensuring precise and reliable documentation.
+                                        </p>
+                                    </div>
+
+                                    {/* Feature 3 */}
+                                    <div className="bg-blue-900/50 p-8 rounded-xl">
+                                        <h3 className="text-xl font-bold mb-4">Our Impact</h3>
+                                        <p className="text-blue-200">
+                                            Healthcare professionals save over 60 minutes per day, allowing more time
+                                            for patient care and reduced administrative burden.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Team or Additional Info */}
+                                <div className="mt-20 text-center">
+                                    <h3 className="text-2xl font-bold mb-8">Why Choose Doccy?</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                                        <div className="bg-blue-900/30 p-6 rounded-lg">
+                                            <h4 className="font-bold mb-2">Efficiency</h4>
+                                            <p className="text-blue-200">
+                                                Reduce documentation time by 60+ minutes daily with our AI-powered solution
+                                            </p>
+                                        </div>
+                                        <div className="bg-blue-900/30 p-6 rounded-lg">
+                                            <h4 className="font-bold mb-2">Accuracy</h4>
+                                            <p className="text-blue-200">
+                                                High-precision medical transcription with specialized medical terminology
+                                            </p>
+                                        </div>
+                                        <div className="bg-blue-900/30 p-6 rounded-lg">
+                                            <h4 className="font-bold mb-2">Integration</h4>
+                                            <p className="text-blue-200">
+                                                Seamlessly integrates with existing medical record systems
+                                            </p>
+                                        </div>
+                                        <div className="bg-blue-900/30 p-6 rounded-lg">
+                                            <h4 className="font-bold mb-2">Support</h4>
+                                            <p className="text-blue-200">
+                                                24/7 dedicated technical support and continuous system improvements
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            {/* Team Section */}
+                            <div id="team" className="min-h-screen bg-blue-900 relative">
+                                {/* Background Circle - Left Side */}
+                                <div className="absolute inset-0 flex justify-start items-center pointer-events-none">
+                                    <img
+                                        src="images/circle2.svg"
+                                        alt=""
+                                        className="w-4/5 opacity-10 transform -translate-x-1/4"
+                                    />
+                                </div>
+
+                                <div className="container mx-auto px-6 py-20 relative z-10 min-h-screen flex flex-col justify-center">
+                                    <h2 className="text-4xl font-bold text-center mb-16">Our Team</h2>
+                                    {/* Founders Grid */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-16 max-w-5xl mx-auto">
+                                        {/* Founder 1 */}
+                                        <div className="bg-blue-800/30 rounded-xl p-10 text-center group transform hover:scale-105 transition-transform duration-300">
+                                            <div className="relative mb-4 inline-block">
+                                                <img
+                                                    src="images/Luiza.jpg"
+                                                    alt="Luiza Karapetyan"
+                                                    className="w-40 h-40 rounded-full object-cover mx-auto"
+                                                />
+                                                <a
+                                                    href="https://www.linkedin.com/in/luiza-karapetyan-748419209/"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="absolute bottom-0 right-0 bg-blue-600 p-2 rounded-full hover:bg-blue-700 transition-colors"
+                                                >
+                                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                            <h3 className="text-xl font-bold mb-2">Luiza Karapetyan</h3>
+                                            <p className="text-blue-200 mb-2">Co-Founder</p>
+                                            <p className="text-blue-200 text-sm">
+                                                ML engineer, 42Yerevan alumni, Bachelors in Computer Science.
+                                            </p>
+                                        </div>
+
+                                        {/* Founder 2 */}
+                                        <div className="bg-blue-800/30 rounded-xl p-6 text-center group">
+                                            <div className="relative mb-4 inline-block">
+                                                <img
+                                                    src="images/Zhenya.jpg"
+                                                    alt="Zhenya Karapetyan"
+                                                    className="w-40 h-40 rounded-full object-cover mx-auto"
+                                                />
+                                                <a
+                                                    href="https://www.linkedin.com/in/zhenya-karapetyan-619bb0240/"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="absolute bottom-0 right-0 bg-blue-600 p-2 rounded-full hover:bg-blue-700 transition-colors"
+                                                >
+                                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                            <h3 className="text-xl font-bold mb-2">Zhenya Karapetyan</h3>
+                                            <p className="text-blue-200 mb-2">Co-Founder</p>
+                                            <p className="text-blue-200 text-sm">
+                                                Software engineer, 42Yerevan alumni, Bachelors in Computer Science.
+                                            </p>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        {/* Footer Section */}
+                        <footer className="bg-blue-950">
+                            <div className="container mx-auto px-6 py-16">
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+                                    {/* Company Info Column */}
+                                    <div>
+                                        <img src="images/logo.svg" alt="Doccy" className="h-8 mb-6" />
+                                        <p className="text-blue-200">
+                                            Revolutionizing medical documentation with AI-powered speech recognition
+                                        </p>
+                                    </div>
+
+                                    {/* Product Column */}
+                                    <div>
+                                        <h3 className="font-bold mb-4">Product</h3>
+                                        <ul className="space-y-2">
+                                            <li>
+                                                <a
+                                                    href="#features"
+                                                    className="text-blue-200 hover:text-white transition-colors"
+                                                    onClick={() => window.location.href = '#features'}
+                                                >
+                                                    Features
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    onClick={() => setIsContactModalOpen(true)}
+                                                    className="text-blue-200 hover:text-white transition-colors"
+                                                >
+                                                    Pricing
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <a
+                                                    href="#use-cases"
+                                                    className="text-blue-200 hover:text-white transition-colors"
+                                                    onClick={() => window.location.href = '#use-cases'}
+                                                >
+                                                    Use Cases
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    {/* Company Column */}
+                                    <div>
+                                        <h3 className="font-bold mb-4">Company</h3>
+                                        <ul className="space-y-2">
+                                            <li>
+                                                <a
+                                                    href="#about-us"
+                                                    className="text-blue-200 hover:text-white transition-colors"
+                                                    onClick={() => window.location.href = '#about-us'}
+                                                >
+                                                    About Us
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a
+                                                    href="#team"
+                                                    className="text-blue-200 hover:text-white transition-colors"
+                                                    onClick={() => window.location.href = '#team'}
+                                                >
+                                                    Team
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <button
+                                                    onClick={() => setIsContactModalOpen(true)}
+                                                    className="text-blue-200 hover:text-white transition-colors"
+                                                >
+                                                    Contact
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    {/* Connect Column */}
+                                    <div>
+                                        <h3 className="font-bold mb-4">Connect</h3>
+                                        <ul className="space-y-2">
+                                            <li>
+                                                <a
+                                                    href="https://linkedin.com/company/doccy"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-200 hover:text-white transition-colors flex items-center gap-2"
+                                                >
+                                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                                                    </svg>
+                                                    LinkedIn
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a
+                                                    href="https://twitter.com/doccy"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-200 hover:text-white transition-colors flex items-center gap-2"
+                                                >
+                                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                                                    </svg>
+                                                    Twitter
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a
+                                                    href="#blog"
+                                                    className="text-blue-200 hover:text-white transition-colors"
+                                                    onClick={() => window.location.href = '#blog'}
+                                                >
+                                                    Blog
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {/* Copyright Section */}
+                                <div className="mt-12 pt-8 border-t border-blue-800 text-center text-blue-200">
+                                    <p>&copy; {new Date().getFullYear()} Doccy. All rights reserved.</p>
+                                </div>
+                            </div>
+                        </footer>
+
+                    </main>
+
+                    {isModalOpen && (
+                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                            <div className="bg-white text-gray-900 rounded-xl max-w-md w-full p-6">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-2xl font-bold">Schedule a Meeting</h2>
+                                    <button
+                                        onClick={() => setIsModalOpen(false)}
+                                        className="text-gray-500 hover:text-gray-700"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">First Name*</label>
+                                        <input
+                                            type="text"
+                                            name="firstName"
+                                            required
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Last Name*</label>
+                                        <input
+                                            type="text"
+                                            name="lastName"
+                                            required
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Company Name*</label>
+                                        <input
+                                            type="text"
+                                            name="companyName"
+                                            required
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Email Address*</label>
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            required
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Preferred Meeting Time*</label>
+                                        <input
+                                            type="datetime-local"
+                                            name="meetingDateTime"
+                                            required
+                                            min={new Date(Date.now() + 86400000).toISOString().slice(0, 16)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors"
+                                    >
+                                        Schedule Meeting
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+                    <ContactModal
+                        isOpen={isContactModalOpen}
+                        onClose={() => setIsContactModalOpen(false)}
+                    />
+
+                </div>
+            );
+        };
+
+
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+</body>
+
+</html>
