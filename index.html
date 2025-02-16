@@ -216,76 +216,29 @@
         };
 
 
-        import React, { useEffect, useState } from 'react';
-
-        const RollingLeaderboard = () => {
-            const [scrollPosition, setScrollPosition] = useState(0);
-
-            const partners = [
-                { id: 1, name: 'TUMO', image: 'images/tumo.png' },
-                { id: 2, name: 'Erebouni', image: 'images/erebuni.png' },
-                { id: 3, name: 'NCO', image: 'images/uak.png' },
-                { id: 4, name: 'Vardanants', image: 'images/vardananc.svg' },
-                { id: 5, name: '42 school', image: 'images/42Yerevan.svg' },
-                { id: 6, name: 'TUMO Labs', image: 'images/labs.svg' },
-                { id: 7, name: 'AWS Startups', image: 'images/Cloudvisor.svg' },
-                { id: 8, name: 'Cloudvisor', image: 'images/Cloudvisor.svg' },
-                { id: 9, name: 'Hay Amerikyan', image: 'images/vardananc.svg' },
-            ];
-
-            // Duplicate the partners array to create a seamless loop
-            const duplicatedPartners = [...partners, ...partners];
-
-            useEffect(() => {
-                const scrollInterval = setInterval(() => {
-                    setScrollPosition((prevPosition) => {
-                        const newPosition = prevPosition + 1;
-                        // Reset position when we've scrolled through all original items
-                        return newPosition >= partners.length * 200 ? 0 : newPosition;
-                    });
-                }, 30); // Adjust speed by changing this value
-
-                return () => clearInterval(scrollInterval);
-            }, [partners.length]);
-
-            return (
-                <div className="h-screen bg-blue-800/50 relative flex flex-col justify-center">
-                    <div className="container mx-auto px-6 relative z-10">
-                        <h2 className="text-4xl font-bold text-center mb-24">Trusted by Industry Leaders</h2>
-
-                        <div className="relative overflow-hidden">
-                            <div
-                                className="flex transition-transform duration-1000 ease-linear"
-                                style={{
-                                    transform: `translateX(-${scrollPosition}px)`,
-                                    width: 'max-content'
-                                }}
-                            >
-                                {duplicatedPartners.map((partner, index) => (
-                                    <div
-                                        key={`${partner.id}-${index}`}
-                                        className="mx-8 transform transition-all duration-500 hover:scale-110"
-                                    >
-                                        <img
-                                            src={partner.image}
-                                            alt={partner.name}
-                                            className="w-40 h-20 object-contain filter brightness-0 invert"
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-
-
         const App = () => {
             const [isModalOpen, setIsModalOpen] = React.useState(false);
             const [isContactModalOpen, setIsContactModalOpen] = React.useState(false);
+            const [scrollPosition, setScrollPosition] = React.useState(0);
 
+            // Modified useEffect for continuous scrolling
+            React.useEffect(() => {
+                const logoSetWidth = 1200; // Width of one complete set of logos
+                const totalSets = 4; // Number of logo sets we're displaying
+
+                const scrollInterval = setInterval(() => {
+                    setScrollPosition((prevPosition) => {
+                        const newPosition = prevPosition + 2;
+                        // Only reset after all sets have scrolled
+                        if (newPosition >= logoSetWidth * (totalSets - 1)) {
+                            return 0;
+                        }
+                        return newPosition;
+                    });
+                }, 30);
+
+                return () => clearInterval(scrollInterval);
+            }, []);
 
             const handleSubmit = async (e) => {
                 e.preventDefault();
@@ -358,7 +311,7 @@
 
             return (
                 <div className="h-screen overflow-y-auto bg-blue-950 text-white">
-                    <header className="fixed top-0 w-full bg-indigo-900/1 backdrop-blur-sm z-50 px-6 py-4 flex justify-between items-center">
+                    <header className="fixed top-0 w-full bg-[#0a1445] backdrop-blur-sm z-50 px-6 py-4 flex justify-between items-center">
                         <img src="images/logo.svg" alt="Doccy" className="h-8" />
                         <nav className="flex items-center gap-8">
                             <a href="#products" className="hover:text-blue-200 transition-colors">Products</a>
@@ -366,44 +319,75 @@
                             <button
                                 onClick={() => setIsModalOpen(true)}
                                 className="bg-violet-500 hover:bg-violet-600 px-6 py-2 rounded-lg transition-colors">
-                                Book a Demo
+                                Book a meeting
                             </button>
                         </nav>
                     </header>
 
-                     {/* Hero content */}
                     <main className="pt-10">
-                        <div className="h-screen container mx-auto px-6 flex items-center relative">
-                            <div className="max-w-3xl z-10">
-                                <h1 className="text-6xl font-bold mb-6">Save 60+ minutes per day</h1>
-                                <h2 className="text-2xl text-blue-200 mb-8">
-                                    Doccy automatically generates all the report from dictated speech.
-                                </h2>
-                                <button onClick={() => setIsModalOpen(true)} className="bg-orange-400 hover:bg-orange-500 text-white px-8 py-3 rounded-lg text-lg transition-colors">
-                                    Book a Demo
+                        {/* Hero content */}
+                        <div className="container mx-auto px-6 py-20 flex justify-between items-center">
+                            {/* Left content */}
+                            <div className="max-w-xl">
+                                <h1 className="text-white text-7xl font-bold mb-6">
+                                    Save 60+ minutes per day
+                                </h1>
+                                <p className="text-gray-300 text-xl mb-8">
+                                    Doccy automatically generates report from dictated speech.
+                                </p>
+                                <button
+                                    className="bg-orange-400 hover:bg-orange-500 text-white px-8 py-3 rounded-lg text-lg"
+                                >
+                                    REQUEST DEMO
                                 </button>
                             </div>
-                            {/* Hero background circle */}
-                            <div className="absolute inset-0 flex justify-end items-center pointer-events-none">
-                                <img src="images/circle2.svg" alt="" className="w-4/5 opacity-10 transform translate-x-1/4" />
+
+                            {/* Right side image */}
+                            <div className="w-1/2 relative">
+                                <div className="bg-[#0a1445] rounded-lg p-6">
+                                    <img
+                                        src="images/photodoc.svg"
+                                        alt="Doccy Interface"
+                                        className="rounded-lg w-full"
+                                    />
+                                </div>
+                                {/* Background lines image */}
+                                <div className="absolute inset-0 flex justify-end items-center pointer-events-none">
+                                    <img src="images/circle2.svg" alt="" className="w-4/5 opacity-10 transform translate-x-1/4" />
+                                </div>
                             </div>
                         </div>
 
+
+
                         {/* Partners Section */}
                         <div className="h-screen bg-blue-800/50 relative flex flex-col justify-center">
-                            <div className="container mx-auto px-6 relative z-10 text-center">
-                                <h2 className="text-4xl font-bold text-center mb-48">Trusted by Industry Leaders</h2>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-12 items-center justify-items-center">
-                                    {/* Your partner logos */}
-                                    <img src="images/tumo.png" alt="TUMO" className="w-40 h-20 object-contain filter brightness-0 invert" />
-                                    <img src="images/erebuni.png" alt="Erebouni" className="w-40 h-20 object-contain filter brightness-0 invert" />
-                                    <img src="images/uak.png" alt="NCO" className="w-40 h-20 object-contain" />
-                                    <img src="images/vardananc.svg" alt="Vardanants" className="w-40 h-20 object-contain filter brightness-0 invert" />
-                                    <img src="images/42Yerevan.svg" alt="42 school" className="w-40 h-20 object-contain filter brightness-0 invert" />
-                                    <img src="images/labs.svg" alt="TUMO Labs" className="w-40 h-20 object-contain filter brightness-0 invert" />
-                                    <img src="images/Cloudvisor.svg" alt="AWS Startups" className="w-40 h-20 object-contain filter brightness-0 invert" />
-                                    <img src="images/Cloudvisor.svg" alt="Cloudvisor" className="w-40 h-20 object-contain filter brightness-0 invert" />
-                                    <img src="images/vardananc.svg" alt="Hay Amerikyan" className="w-40 h-20 object-contain filter brightness-0 invert" />
+                            <div className="container mx-auto px-6 relative z-10">
+                                <h2 className="text-4xl font-bold text-center mb-20">Trusted by Industry Leaders</h2>
+                                <h2 className="text-2xl font-bold text-center mb-48">Customers and Partners</h2>
+
+                                <div className="relative overflow-hidden mx-20">
+                                    <div
+                                        className="flex transition-transform duration-1000 ease-linear"
+                                        style={{
+                                            transform: `translateX(-${scrollPosition}px)`,
+                                            width: 'max-content',
+                                            padding: '0 48px'
+                                        }}
+                                    >
+                                        {/* Multiple sets of logos for continuous scrolling */}
+                                        {[...Array(4)].map((_, index) => (
+                                            <div key={index} className="flex gap-24">
+                                                <img src="images/tumo.png" alt="TUMO" className="w-40 h-20 object-contain filter brightness-0 invert" />
+                                                <img src="images/labs.svg" alt="Labs" className="w-40 h-20 object-contain" />
+                                                <img src="images/cloudvisor.svg" alt="Cloudvisor" className="w-40 h-20 object-contain" />
+                                                <img src="images/erebuni.png" alt="Erebouni" className="w-40 h-20 object-contain filter brightness-0 invert" />
+                                                <img src="images/plugaandplay.webp" alt="PlugAndPlay" className="w-40 h-20 object-contain filter brightness-0 invert" />
+                                                <img src="images/uak.png" alt="NCO" className="w-40 h-20 object-contain" />
+                                                <img src="images/vardananc.svg" alt="Vardanants" className="w-40 h-20 object-contain filter brightness-0 invert mr-24" />
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                             {/* Partners background circle */}
@@ -411,9 +395,6 @@
                                 <img src="images/circle2.svg" alt="" className="w-4/5 opacity-10 transform -translate-x-1/4" />
                             </div>
                         </div>
-
-
-
 
 
                         {/* About Us Section */}
@@ -434,7 +415,7 @@
                                 <div className="max-w-4xl mx-auto text-center mb-20">
                                     <p className="text-xl text-blue-200 leading-relaxed">
                                         At Doccy, we're revolutionizing medical documentation through AI-powered speech recognition,
-                                        making heal thcare professionals' lives easier and more efficient.
+                                        making healthcare professionals' lives easier and more efficient.
                                     </p>
                                 </div>
 
@@ -544,7 +525,7 @@
                                         </div>
 
                                         {/* Founder 2 */}
-                                        <div className="bg-blue-800/30 rounded-xl p-6 text-center group">
+                                        <div className="bg-blue-800/30 rounded-xl p-10 text-center group transform hover:scale-105 transition-transform duration-300">
                                             <div className="relative mb-4 inline-block">
                                                 <img
                                                     src="images/Zhenya.jpg"
@@ -568,7 +549,6 @@
                                                 Software engineer, 42Yerevan alumni, Bachelors in Computer Science.
                                             </p>
                                         </div>
-
                                     </div>
                                 </div>
 
@@ -583,7 +563,7 @@
                                     {/* Company Info Column */}
                                     <div>
                                         <img src="images/logo.svg" alt="Doccy" className="h-8 mb-6" />
-                                        <p className="text-blue-200">
+                                        <p className="text-blue-200 ml-3">
                                             Revolutionizing medical documentation with AI-powered speech recognition
                                         </p>
                                     </div>
@@ -710,7 +690,7 @@
                         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                             <div className="bg-white text-gray-900 rounded-xl max-w-md w-full p-6">
                                 <div className="flex justify-between items-center mb-6">
-                                    <h2 className="text-2xl font-bold">Schedule a Demo</h2>
+                                    <h2 className="text-2xl font-bold">Schedule a Meeting</h2>
                                     <button
                                         onClick={() => setIsModalOpen(false)}
                                         className="text-gray-500 hover:text-gray-700"
@@ -787,7 +767,6 @@
                         onClose={() => setIsContactModalOpen(false)}
                     />
 
-                    
                 </div>
             );
         };
