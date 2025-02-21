@@ -13442,7 +13442,9 @@
                     <div class="intro-general-section">
                         <div class="text-content-section">
                             <div>
-                                <h1 class="ant-typography sc-5f0adaf7-0 byYTSl content-title css-1drr2mu">Revolutionize Workflows<br /> with Powerful <br /><span class="sc-4c5771ba-0 cBsgcl">AI reporting</span></h1>
+                                <h1 class="ant-typography sc-5f0adaf7-0 byYTSl content-title css-1drr2mu">Revolutionize
+                                    Workflows<br /> with Powerful <br /><span class="sc-4c5771ba-0 cBsgcl">AI
+                                        reporting</span></h1>
                             </div>
                             <p class="sc-d8e70eb3-0 iegTxH content-text">Doccy Reporting employs advanced machine
                                 learning algorithms creating comprehensive and accurate
@@ -14190,7 +14192,7 @@
                                         <a href="#features" class="footer-link">Features</a>
                                     </li> -->
                                     <li>
-                                        <button id="openModalButton" class="footer-button">Pricing</button>
+                                        <button id="pricingButton" class="footer-button modal-trigger">Pricing</button>
                                     </li>
                                     <!-- <li>
                                         <a href="#use-cases" class="footer-link">Use Cases</a>
@@ -14209,7 +14211,7 @@
                                         <a href="#team" class="footer-link">Team</a>
                                     </li>
                                     <li>
-                                        <button class="footer-button" id="openModalButton">Contact</button>
+                                        <button id="contactButton" class="footer-button modal-trigger">Contact</button>
                                     </li>
                                 </ul>
                             </div>
@@ -14229,7 +14231,7 @@
                                         </a>
                                     </li>
                                     <!-- <li> -->
-                                        <!-- <a href="https://twitter.com/doccy" target="_blank" rel="noopener noreferrer"
+                                    <!-- <a href="https://twitter.com/doccy" target="_blank" rel="noopener noreferrer"
                                             class="footer-link social-link">
                                             <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24">
                                                 <path
@@ -14478,11 +14480,20 @@
                                     emailjs.init("UwLbMCXnZUr7yssSt"); // Replace with your actual EmailJS user ID
                                 })();
 
-                            // DOM elements
-                            const openModalButton = document.getElementById('openModalButton');
+                            // DOM elements - Modal
                             const contactModal = document.getElementById('contactModal');
                             const closeModalButton = document.getElementById('closeModalButton');
+
+                            // DOM elements - Trigger buttons
+                            const pricingButton = document.getElementById('pricingButton');
+                            const contactButton = document.getElementById('contactButton');
+
+                            // DOM elements - Form
                             const contactForm = document.getElementById('contactForm');
+
+                            // Add event listeners to both buttons to open the modal
+                            pricingButton.addEventListener('click', openModal);
+                            contactButton.addEventListener('click', openModal);
 
                             // Open modal function
                             function openModal() {
@@ -14512,8 +14523,7 @@
                                 }
                             });
 
-                            // Add event listeners
-                            openModalButton.addEventListener('click', openModal);
+                            // Add event listener for close button
                             closeModalButton.addEventListener('click', closeModal);
 
                             // Form submission
@@ -14553,8 +14563,7 @@
                                     console.error('Error:', error);
                                     alert('Sorry, there was an error sending your message. Please try again.');
                                 }
-                            });
-                        </script>
+                            });                        </script>
                 </footer>
 
                 <style>
@@ -14661,6 +14670,7 @@
                         font-size: 0.9rem;
                         opacity: 0.7;
                     }
+
                     .submit-button:hover {
                         background-color: #1d4ed8;
                     }
